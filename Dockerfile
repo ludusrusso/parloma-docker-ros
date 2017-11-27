@@ -1,12 +1,13 @@
-FROM fjctp/armhf-ros-kinetic-core
+FROM hbrobotics/ros-base:rpi3
 
 RUN apt-get update
 RUN apt-get install ros-kinetic-rosserial -y
 RUN apt-get install ros-kinetic-rosbridge-suite -y
 
-RUN apt-get install nginx -y
+RUN apt-get install nginx npm -y
 
-COPY ./web /web
+COPY ./parloma-leap-html /web
+RUN cd /web && npm install
 
 RUN /bin/bash -c "source /opt/ros/kinetic/setup.bash && mkdir -p /parloma/ros/src && cd /parloma/ros/src && catkin_init_workspace && cd .. && catkin_make"
 COPY ./parloma_driver /parloma/ros/src/parloma_driver
