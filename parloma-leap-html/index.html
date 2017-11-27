@@ -1,0 +1,94 @@
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Leap</title>
+
+    <script src="./node_modules/leapjs/leap-0.6.4.js"></script>
+    <script src="./node_modules/roslib/build/roslib.js"></script>
+
+    <script>
+      var ros = new ROSLIB.Ros();
+      ros.connect('ws://' + location.hostname + '/ros/');
+
+      var serialTopic = new ROSLIB.Topic({
+        ros : ros,
+        name : '/output/serial_topic',
+        messageType : 'serial_bridge/generic_serial'
+      });
+
+      var msg = {
+        msg: [241, 10, 10, 180, 170, 180, 100, 80, 90, 50]
+      }
+
+      serialTopic.publish(msg);
+
+
+      Leap.loop({
+        frame: function(frame){
+          let hand = frame.hands[0];
+          if (hand){
+            if (hand.type == 'right') {
+              let index_angle = Math.acos(Leap.vec3.dot(hand.direction, hand.indexFinger.direction))*200/Math.PI;
+              let thumb_angle = Math.acos(Leap.vec3.dot(hand.direction, hand.thumb.direction))*200/Math.PI;
+              let middle_angle = Math.acos(Leap.vec3.dot(hand.direction, hand.middleFinger.direction))*200/Math.PI;
+              let pinky_angle = Math.acos(Leap.vec3.dot(hand.direction, hand.pinky.direction))*200/Math.PI;
+              let ring_angle = Math.acos(Leap.vec3.dot(hand.direction, hand.ringFinger.direction))*200/Math.PI;
+
+              if (index_angle > 180) index_angle = 180
+              if (thumb_angle > 180) thumb_angle = 180
+              if (middle_angle > 180) middle_angle = 180
+              if (pinky_angle > 180) pinky_angle = 180
+              if (ring_angle > 180) ring_angle = 180
+
+              out.innerHTML = " " + thumb_angle + " " + index_angle + " " + middle_angle + " " + ring_angle + " " + pinky_angle;
+
+              let msg = {
+                msg: [241, Math.floor(thumb_angle), Math.floor(index_angle), 180- Math.floor(middle_angle), 180-Math.floor(ring_angle), 180-Math.floor(pinky_angle), 100, 80, 90, 50]
+              }
+
+              serialTopic.publish(msg);
+
+            }
+          }
+        }
+      });
+    </script>
+
+    <style>
+      body {
+        line-height: 2em;
+        font-family: Helvetica;
+      }
+      #out{
+        font-weight: bold;
+      }
+    </style>
+
+  </head>
+
+  <body>
+
+  <p>
+    This page demonstrates the usage of basic vector Math with the Leap.  In this example, we will compute the dot-product,
+    of hand direction and index finger direction. This is a measure of how close two vectors are.
+  </p>
+
+  <p>
+    Find out more in the <a target="_blank" href="http://glmatrix.net/docs/2.2.0/">GL-Matrix Documentation</a> and
+    <a href="http://en.wikipedia.org/wiki/Dot_product" target="_blank">Wikipedia</a>.
+  </p>
+
+  <p>
+    <img src="images/dot-product.png"/>
+  </p>
+
+  <br/>
+  <p>
+    hand.direction &#xb7; hand.indexFinger.direction =
+    <span id="out"></span>
+  </p>
+
+
+  </body>
+
+</html>

@@ -1,0 +1,17 @@
+{
+  "name": "parloma-leap-html",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bootstrap": "^3.3.7",
+    "leapjs": "^0.6.4",
+    "roslib": "^0.19.0"
+  },
+  "devDependencies": {},
+  "description": ""
+}
